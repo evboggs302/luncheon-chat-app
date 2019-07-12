@@ -1,5 +1,8 @@
 import React, { Component } from "react";
 import "./App.scss";
+import socketIOClient from "socket.io-client";
+const socket = socketIOClient("http://192.168.0.218:4000/");
+// in production, remove the url string
 
 class App extends Component {
   constructor() {
@@ -10,6 +13,11 @@ class App extends Component {
       username: "",
       typedUsername: ""
     };
+    socket.on("message", returnedMessage => {
+      this.setState({
+        returnedMessage: [...this.state.returnedMessage, returnedMessage]
+      });
+    });
   }
   render() {
     const { username, typedUsername, message, returnedMessage } = this.state;
@@ -27,7 +35,7 @@ class App extends Component {
               <form
                 onSubmit={e => {
                   e.preventDefault();
-
+                  socket.emit("message", { message, username });
                   this.setState({
                     message: ""
                   });
